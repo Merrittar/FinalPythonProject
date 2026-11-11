@@ -1,0 +1,110 @@
+"""Regular expression patterns"""
+
+import re
+"""pattern = r"."
+text = "babc"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"^a"
+text = "bca"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"a?" #specifies that the character 'a' is optional and can appear 0 or 1 time
+text = "aaaabca"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"a{2}"  #specifies that the character 'a' should appear exactly 2 times
+text = "aaaabcaabca"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"[abc]" #matches any one of the characters a, b, or c
+text = "abcdeacb"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"[^abc]" #matches any character that is not a, b, or c
+text = "abcdeacb"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"[a-z]" #matches any lowercase letter from a to z
+text = "abcABC123deF"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"[0-9]" #matches any digit from 0 to 9
+text = "abcABC123deF"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"\d" #matches any digit (equivalent to [0-9])
+text = "abcABC123deF"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"\w" #matches any alphanumeric character and underscore (equivalent to [a-zA-Z0-9_])
+text = "abcABC_123deF"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"\s" #matches any whitespace character (spaces, tabs, newlines)
+text = "abc ABC\t123\ndeF"
+match = re.findall(pattern, text)
+print(match)
+print(text)
+
+pattern = r"(abc)" #matches the exact sequence "abc" and captures it as a group
+text = "abcABC123deFabc"
+match = re.findall(pattern, text)
+print(match)
+
+pattern = r"(?:abc)" #matches the exact sequence "abc" but does not capture it as a group
+text = "abcABC123deFabc"
+match = re.findall(pattern, text)
+print(match)
+
+pattern =r"(?P<name>abc)" #matches the exact sequence "abc" and captures it as a group named "name"
+text = "abcABC123deFabc"
+match = re.search(pattern, text)
+print(match.group("name"))
+
+pattern = r"(abc)\1" #matches the exact sequence "abc" followed by the same sequence again (i.e., "abcabc")
+text = "abcabcABC123abc"
+match = re.search(pattern, text)
+print(match.group(0))
+
+pattern = r"^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" #matches a valid email address
+text = "sharpers@appstate.edu"
+match = re.search(pattern, text)
+if match:
+    print("Valid email address:", text)
+else:
+    print("Invalid email address", text)
+
+pattern = r"\b\d{4}-\d{2}-\d{2}\b" #matches a date in the format YYYY-MM-DD
+text = "The event is scheduled for 2026-03-199930." #note that without \b, the regex would also match "2026-03-30" in "2026-03-30th" or ID#12026-10-19999 
+match = re.search(pattern, text)
+if match:
+    print("Date found:", match.group(0))
+else:    print("No date found")
+
+pattern = r"(?:')|(?:--)|(?:\b(OR|AND)\b):" #matches common SQL injection patterns such as single quotes, double dashes, or the words "OR" and "AND"
+text = "SELECT * FROM users WHERE username = 'Admin' OR 1=1 --"
+match = re.search(pattern, text, re.IGNORECASE)
+print(bool(match)) 
+if match:
+    print("Potential SQL injection pattern found:", match.group(0))
+else:
+    print("No SQL injection patterns found")"""
+
+pattern =r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$" #matches an IP address in the format XXX.XXX.XXX.XXX
+text = "The server is located at 192.168.1.237.124" 
+match = re.search(pattern, text)
+if match:
+    print("IP address found:", match.group(0))
+else:
+    print("No IP address found")
