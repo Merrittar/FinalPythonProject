@@ -1,0 +1,101 @@
+""" File and Directory Management Example
+
+This program demonstrates common file system operations:
+1. Display the current working directory
+2. List files and folders
+3. Identify Python files
+4. Change directories
+5. Build file paths
+6. Determine whether a path is a file or directory
+7. Change directories
+8. Search for files by extension
+9. Search an entire directory tree for files by extension"""
+
+import os
+
+# 1. Display Current Directory
+
+current_directory = os.getcwd()
+print("Current Working Directory:")
+print(current_directory)
+
+#2. List Contents of Current Directory
+
+print("\nContents of Current Directory:")
+directory_contents = os.listdir(current_directory)
+for item in directory_contents:
+    print(item)
+
+"""# 3. Identify Python Files (or specific file types)
+
+print("\nPython Files Found:")
+python_file_found = False
+for item in directory_contents:
+    # endswith() is commonly used to test file extensions
+    if item.endswith(".py"):
+        print(item)
+        python_file_found = True
+if not python_file_found:
+    print("No Python files found.")
+
+
+#4. Determine if Item is File or Directory
+
+print("\nFile Type Analysis:")
+for item in directory_contents:
+    full_path = os.path.join(current_directory, item)
+    if os.path.isfile(full_path):
+        print(item, "--> FILE")
+    elif os.path.isdir(full_path):
+        print(item, "--> DIRECTORY")"""
+
+
+#5. Build a File Path
+
+example_file = "sample.txt"
+file_path = os.path.join(current_directory, example_file)
+print("\nExample Path:")
+print(file_path)
+
+#6. Check Whether a File Exists
+
+if os.path.exists(file_path):
+    print("File exists.")
+else:
+    print("File does not exist.")
+
+
+# 7. Change Directories
+
+# NOTE:
+# Update this path to one that exists on your computer.
+
+new_directory = r"P:\Courses\CIS 3680\Practice"
+
+try:
+    os.chdir(new_directory)
+    print("\nDirectory successfully changed.")
+
+    print("New Current Directory:")
+    print(os.getcwd())
+except FileNotFoundError:
+    print("Directory was not found.")
+
+
+#8. Search for All Text Files
+
+print("\nText Files Found:")
+for item in os.listdir():
+    if item.endswith(".py"):
+        print(item)
+
+
+#9. Search an entire directory tree for files by extension
+
+print("\nSearching for Python files...\n")
+
+for folder_name, subfolders, filenames in os.walk(os.getcwd()):
+    for filename in filenames:
+        if filename.endswith(".py"):
+            full_path = os.path.join(folder_name, filename)
+            print(full_path)
