@@ -1,0 +1,260 @@
+Button_Widget: #####
+
+
+
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Button Example")
+
+button = tk.Button(
+    root,
+    text="Submit")
+
+button.pack(pady=20)
+
+root.mainloop()
+
+
+
+Customer_Lookup: #####
+
+
+
+import tkinter as tk
+
+def search_customer():
+    customer_id = entry.get()
+
+    result_label.config(
+        text=f"Searching for Customer ID {customer_id}"
+    )
+
+root = tk.Tk()
+root.title("Customer Lookup")
+
+tk.Label(
+    root,
+    text="Customer ID:"
+).pack()
+
+entry = tk.Entry(root)
+entry.pack()
+
+search_button = tk.Button(
+    root,
+    text="Search",
+    command=search_customer
+)
+
+search_button.pack(pady=10)
+
+result_label = tk.Label(root, text="")
+result_label.pack()
+
+root.mainloop()
+
+
+
+Entry_Widget: #####
+
+
+
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Entry Example")
+
+label = tk.Label(root, text="Student Name")
+
+entry = tk.Entry(root, width=30)
+
+label.pack(pady=10)
+entry.pack()
+
+root.mainloop()
+
+Event_Handlers: #####
+import tkinter as tk
+
+def greet():
+    print("Hello Students!")
+
+root = tk.Tk()
+
+button = tk.Button(
+    root,
+    text="Click Me",
+    command=greet
+)
+
+button.pack(pady=30)
+
+root.mainloop()
+
+
+
+Grid_Layout_Example: #####
+
+
+
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Grid Layout")
+
+name_label = tk.Label(root,text="Name:")
+name_entry = tk.Entry(root)
+
+name_label.grid(row=0,column=0,padx=50,pady=50)
+
+name_entry.grid(row=0,column=1,padx=5,pady=5)
+
+root.mainloop()
+
+Grid_Layout_StudentRegistration: #####
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Student Registration")
+
+tk.Label(
+    root,
+    text="First Name:"
+).grid(row=0,column=0,padx=5,pady=5)
+
+first_name = tk.Entry(root)
+first_name.grid(row=0,column=1)
+
+tk.Label(
+    root,
+    text="Last Name:"
+).grid(row=1,column=0,padx=5,pady=5)
+
+last_name = tk.Entry(root)
+last_name.grid(row=1,column=1)
+
+tk.Label(
+    root,
+    text="Email:"
+).grid(row=2,column=0,padx=5,pady=5)
+
+email = tk.Entry(root)
+email.grid(row=2,column=1)
+
+submit_button = tk.Button(
+    root,
+    text="Register"
+)
+
+submit_button.grid(
+    row=3,
+    column=0,
+    columnspan=2,
+    pady=10
+)
+
+root.mainloop()
+
+
+
+Label_Demo: #####
+
+
+
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Welcome")
+#root.geometry("600x300")  # Set the window size to 600width x300height pixels--can add +100+50, which is x/y position from left edge and top
+                            #root.resizable(False, False)  # Prevent the user from resizing the window
+label = tk.Label(
+    root,
+    text="Welcome to Foundations of Programming",
+    font=("Arial", 14)
+)
+
+label.pack(pady=20)
+
+root.mainloop()
+
+
+
+Label_Widget: #####
+
+
+
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Labels Example")
+
+title_label = tk.Label(
+    root,
+    text="Student Information System",
+    font=("Arial", 18, "bold")
+)
+
+name_label = tk.Label(
+    root,
+    text="Enter student information below"
+)
+
+title_label.pack(pady=10)
+name_label.pack()
+
+root.mainloop()
+
+
+
+Pack_Layout_Example: #####
+
+
+
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Pack Layout")
+
+tk.Label(root, text="Student Name").pack()
+
+tk.Entry(root).pack()
+
+tk.Button(root,text="Submit").pack()
+
+root.mainloop()
+
+
+
+Tkinter_Template: #####
+
+
+
+import tkinter as tk # Import the tkinter library and give it the shorter alias "tk"
+
+# Create the main application window or "root" window. Every Tkinter application must have one root window, 
+# which serves as the main container for all other widgets.
+root = tk.Tk()    
+# Set the title that appears in the window's title bar
+root.title("Welcome")
+                            #root.resizable(False, False)  # Prevent the user from resizing the window
+    
+# Create a Label widget (label constructor)
+label = tk.Label(
+    # Parent window where the label will be placed & indicates the label is a child of the root window
+    root,  
+    # Text displayed inside the label, which the user cannot edit
+    text="Welcome to Foundations of Programming",
+    font=("Arial", 14)
+)
+# Add the label to the window and place it on the screen
+# pady=20 adds 20 pixels of vertical padding above and below the label
+# The pack() method is a geometry manager that organizes widgets in blocks before placing them in the parent widget. 
+# It automatically adjusts the size and position of the label based on its content and the available space in the window.
+
+label.pack(pady=20)
+
+# Start the GUI event loop
+# This keeps the window open and waits for user actions such as a mouse click, keyboard input, window resizing, button press, etc.
+# Without this line, the window would appear and then immediately close, as the program would finish executing.
+root.mainloop()
