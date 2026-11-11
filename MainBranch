@@ -1,2 +1,46 @@
-#hello
-#hello
+
+
+# define project authors and description
+
+
+#define function to take input file first
+
+#read the file
+def read_file(filename):
+    #Read the file and return the contents
+    with open(filename, "r") as f:
+        return f.read()
+
+#extract the data
+def extract_patients(raw_text):
+    #Splits the text into individual blocks
+    return raw_text.strip().split("\n\n")
+
+#validate data for email
+def validate_email(email):
+    return bool(re.fullmatch(email_reg, email.strip()))
+
+#validate data for phone
+def normalize_phone(phone):
+    match = re.fullmatch(phone_reg, phone.strip())
+    if not match:
+        return None
+    digits = re.sub(r"\D", "", phone)
+    if len(digits) == 11 and digits.startswith("1"):
+        digits = digits[1:]
+    if len(digits) != 10:
+        return None
+    return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+
+# format raw data 
+def process_raw_data(lines);
+  data = []
+  headers = []
+  studentID = ""
+  firstName = ""
+  lastName = []
+  email_student = []
+  major_student = []
+  gpa_student = []
+  classification_student = []
+
