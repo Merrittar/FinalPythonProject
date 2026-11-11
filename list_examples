@@ -1,0 +1,170 @@
+# examample of lists with characters
+"""for x in ['apples', 'oranges', 'cherries']:
+    print(x)
+print('done')
+print(x)"""
+
+"""mylist = ['apples', 'oranges','cherries']  #example using a variable name for list and list elements
+for fruit in (mylist):
+    print(fruit)
+print('Done')"""
+
+"""import math
+x = 2
+numeric_example = [x, math.sqrt(x), x+1]
+print (numeric_example)
+print(x)
+list_op = [x + 1]
+print(list_op)"""
+
+"""#list function example
+mylist = list(  )#list function creates a list from the character string: note square brackets, quotation marks and commas
+print(mylist)"""
+
+"""mylist = [1,2,3,4]   #literal list of integers assigned to mylist
+myotherlist = list(range(1, 6)) #list function used to create my other list with a range from 1-4 recall range y-1
+print(mylist)
+print (myotherlist)
+if mylist == myotherlist:
+    print("True")
+else:
+    print("False")"""
+
+#Basic list operators
+mylist = [1,2,3,4]
+print(mylist)
+print (len(mylist)) #count of the number of elements in mylist
+print (mylist[0])  #references the first position in the index
+print (mylist[3])  #references 4th position in the index 0,1,2,3 *change 3 to 4 for error on reference outside of the index
+print (mylist[2:3]) #slice feature of index selects all values from index position 2 up to, but not including, index position 3
+print (mylist[2:6]) #slice feature of index selects all values from index position 2 up to, but not including, index position 6--or end of list
+concat_list = mylist + [5, 6]   # + symbol concatenates elements of next list
+print("Concat_list",concat_list)
+print(mylist)
+myotherlist = list(range(1, 5))
+print ("Print myotherlist", myotherlist)
+print(mylist)
+if mylist == myotherlist:
+    print("yes")
+else:
+     print("no")
+
+# note difference in printing a character string versus a list of integers
+print("1234")     #character string
+"""print([1,2,3,4])  #numeric list of integers
+
+if 3 in [1,2,3]:
+    print("yes")
+if 0 in [1,2,3]:
+    print("yes")
+else: 
+    print("no")"""
+
+
+"""mylist = [1,2,3,4]
+print(mylist)
+mylist[3] = 0    #assigning the value of 0 to the element located at index position 3
+print(mylist)
+for index in range(len(mylist)):
+    mylist[index] = mylist[index] **2   #square each element in the list
+print(mylist)"""
+
+"""sentence = "This example has five words."
+words = sentence.split()
+print(words)
+for index in range(len(words)):
+    words[index] = words[index].upper()
+print(words)"""
+
+"""# List Methods: Insert, Append, Extend, Pop
+mylist = [1,2]
+print(mylist)
+mylist.insert(1,10)   #insert method places the integer 10 into index position 1 NOT replace the value currently in index position 1
+print(mylist)
+mylist.insert(3,25)   # integer 25 inserted into the 3rd index position
+print(mylist)
+mylist.insert(6,26)   #if index position beyond the lenth of the index, element appended to the end of the list
+print(mylist)"""
+
+"""mylist = [1,2]
+mylist.append(3)  #append method adds the new argument to the end of the list
+print(mylist)
+mylist.append('apple')  #character string "apple" appended to the end of the list of integers
+print(mylist)
+mylist.pop(1)
+print(mylist)  #pop method removes the last element at a given position with default as the end position
+mylist.pop(1)
+print(mylist)
+mylist.extend([4,5,6])
+print(mylist)
+joined_list = mylist + [7,8]
+print("Joined list is: ", joined_list)
+nested_list = [mylist] + [7,8]
+print("Nested list is: ", nested_list)"""
+
+
+# use the operative "in" determines if an element is present in a structure
+# if you want to determine the location of an element in a list, use the index method
+
+"""mylist = [34,45,67]
+target = 45
+if target in mylist:
+    print(mylist.index(target))  #prints the index location for 45 in this list, *search for 67 and then search for 56
+else:
+    print("not present")"""
+
+"""# Sorting a list actually changes the order of the list elements
+mylist = [4,2,10,8,-1]
+print(mylist)
+mylist.sort()     #sort method orders the list of integers--note negative integer
+print(mylist)
+mylist = ['oranges', 'grapefruit', 'apples', 'pears']
+print(mylist)
+mylist.sort()      #sorts a list of character string
+print(mylist)
+mylist.sort(reverse=True)    #sorts a list of charater strings in reverse order
+print(mylist)"""
+
+
+"""# List mutation and the Alias phenomenon
+first_list = [10, 20, 30]
+second_list = first_list
+print(first_list)
+print(second_list)
+first_list[1] = 99     #assigns the integer 99 to the index position 1 currently occupied by the element 20
+print(first_list)
+print(second_list)   #second list set to equal first list & when first list was altered, the second list was altered--actually refer to the same list (aliases)
+"""
+"""first_list = [10, 20, 30]
+third_list = list(first_list)       #create a new object (third) and copy the contents of first into third with the list function
+print(first_list)
+print(third_list)
+first_list[1] = 100      #assigned the integer 100 to the index postion 1 in the first, but the third is not altered as it is a new object
+print(first_list)        
+print(third_list)"""
+
+
+# Object identity--when two variables are aliases for the same object (== returns True value); however, if the contents of two different objects are the same 
+# (structural equivalence) the == also returns True. Thus, the == operator cannot distinguish between structural and object identities
+"""first = [10,20,30]
+second = first
+third = list(first)
+print(first)
+print(second)
+print(third)
+if first == second:
+    print("Aliases")
+else:
+    print("False")
+if first == third:
+    print('Structural Equivalents')
+else:
+    print("False")
+if first is second: #is operator can be used to test for structural equivalents
+    print("Aliases = True")
+else:
+    print("False")
+if first is third:
+    print("Structural Equivalents")
+else:
+    print("False")"""
