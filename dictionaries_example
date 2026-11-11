@@ -1,0 +1,89 @@
+# Create a data dictionary named people
+people = {
+    'htanaka':  'Haru Tanaka',
+    'ppatel': 'Priya Patel',
+    'bagarcia': 'Benjamin Alberto Garcia',
+    'zmin': 'Zhang Min',
+    'afarooqu': 'Ayesha Farooqi',
+    'hajackson': 'Hanna Jackson',
+    'papatel': 'Pratyush Aarav Patel',
+    'hrjackson': 'Henry Jackson'
+}
+print(people)
+"""print(people['zmin'])
+person = 'zmin'
+print(people[person]) 
+try:
+    print(people['schmeedledorph'])
+except KeyError:
+    print("Key not found")"""
+
+
+# Getting the length of a dictionary & store length in variable how_many
+"""how_many = len(people)
+print("length of people:", how_many)"""
+
+# Empty dictionary length
+"""my_dictionary = {}
+how_many1 = len(my_dictionary)
+print("length of how_many1:", how_many1)"""
+
+# Determine whether or not a key exists in the dictionary (True if exists) by using "in"
+"""print('hajackson' in people)
+print('smeedledorph' in people)"""
+
+# Changing the value of a key
+# print the value associated with the key hrjackson
+"""print(people['hrjackson'])
+# Change the value associated with the key
+people['hrjackson'] = 'Henry Jackson-Smith'
+print(people['hrjackson'])"""
+
+# Adding a key: value to a dictionary
+"""people.update({'zamin': 'zhumin Min'})
+# Can also use update to change a value associated with a key (change Henry Jackson-Smith back to Henry Jackson)
+people.update({'hrjackson': 'Henry Jackson'})
+print(people)"""
+
+
+# Display the contents of our people dictionary
+"""for person in people.keys():
+    print(person + ' = ' + people[person])"""
+
+# Display only the keys of our people dictionary 
+"""for person in people:
+    print(person)"""
+
+# Display only the values in our people dictionary
+"""for person in people:
+    print(people[person])"""
+
+"""for key, value in people.items():
+    print(key, ' = ', value)"""
+
+# Removing a key: value from the dictionary using the delete method 
+"""del people['zmin']
+print(people)
+#Removing a key: value from the dictionary using the pop method (option to store result of pop method in a dictionary)
+adios = people.pop('hrjackson')
+print(people)
+print(adios)"""
+
+# sorting the key values and printing the key values
+"""sort_people = list(people.keys())
+sort_people.sort()  #sort in reverse order by reverse=True 
+for key in sort_people:
+    print(key, people[key])"""
+
+# Values associated with a key may be other structures (e.g. list with year hired, dependants, company phoneT/F)
+# Note that the use of parentheses is required for the values in the nested dictionary
+"""people1 = {
+    'htanaka': ('Haru Tanaka', 2020, 0, True),
+    'ppatel': ('Priya Patel', 2015, 1, False),
+    'bagarcia': ('Benjamin Alberto Garcia', 2009, 2, True) 
+}
+print(people1)
+sort_people1 = list(people1.keys())
+#sort_people1.sort()
+for key in sort_people1:
+    print(key, people1[key])"""
