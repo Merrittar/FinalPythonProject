@@ -1,0 +1,49 @@
+"""
+File: restrictedsavingsaccount.py
+This module defines the RestrictedSavingsAccount class.
+"""
+from savingsaccount import SavingsAccount
+
+class RestrictedSavingsAccount(SavingsAccount):
+    """This class represents a restricted savings account."""
+
+    MAX_WITHDRAWALS = 3
+        
+    def __init__(self, name, pin, balance = 0.0):
+        """Same attributes as SavingsAccount, but with
+        a counter for withdrawals."""
+        SavingsAccount.__init__(self, name, pin, balance)
+        self.counter = 0
+
+    def withdraw(self, amount):
+        """Restricts number of withdrawals to MAX_WITHDRAWALS."""
+        if self.counter >= RestrictedSavingsAccount.MAX_WITHDRAWALS:
+            return "No more withdrawals this month"
+        #Call the parent class withdraw method
+        message = super().withdraw(amount)
+        #If withdrawal succeeded, message will be a number(new balance)
+        if isinstance(message, (int,float)):
+            self.counter += 1
+        return message
+        #else:
+        #    message = SavingsAccount.withdraw(self, amount)
+        #    if message == None:
+        #        self.counter += 1
+        #    return message
+
+    def resetCounter(self):
+        """Resets the counter to 0."""
+        self.counter = 0
+
+# example
+def main():
+    account = RestrictedSavingsAccount("Sally", "2001", 500.00)
+    print(account)
+    for count in range(3):
+        account.withdraw(100)
+        print(account.getBalance())
+    print(account.withdraw(50))
+    account.resetCounter()
+    print(account.withdraw(50))
+if __name__ == "__main__":
+    main()
