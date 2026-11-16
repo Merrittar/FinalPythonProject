@@ -1,0 +1,458 @@
+"""File: student_information_system.py
+Student Information System - Registrar's Office Data Migration Project
+
+Program Description: This program imports legacy data from a CSV file, cleans and validates it, stores valid records in a database, and allows for searching and updating of records."""
+
+import os
+import sqlite3
+import tkinter as tk
+from tkinter import messagebox      
+from tkinter import filedialog      
+
+# Find the folder this .py file is saved in, and keep the database and
+# log file in that same folder. This works on any computer.
+FOLDER = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = os.path.join(FOLDER, "students.db")
+LOG_NAME = os.path.join(FOLDER, "rejected_records.txt")
+
+valid_majors = ["CIS", "Accounting", "Finance", "Management", "Marketing", "Computer Science", "Economics", "Supply Chain"]
+
+valid_classifications = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
+
+
+class Student:		# Model component
+    def __init__(self, student_id, first_name, last_name, email,
+                 major, gpa, classification):
+        self.student_id = student_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+        self.major = major
+        self.gpa = gpa
+        self.classification = classification
+
+
+def clean_and_validate(student_id, first_name, last_name, email, major, gpa_text, classification):
+    """Cleans one record, then checks it for problems. Returns the Student and a list of errors (empty list = valid)."""
+    student_id = student_id.strip()                  # remove extra spaces
+    first_name = first_name.strip().title()          # turn all caps to lowercase
+    last_name = last_name.strip().title()            # Capitalize names
+    email = email.strip().lower()
+    major = major.strip()
+    gpa_text = gpa_text.strip()
+    classification = classification.strip().title()
+
+#validation 
+    errors = []
+
+    if not student_id.isdigit():
+        errors.append("Student ID must be numeric")
+
+    if first_name == "":
+        errors.append("Missing first name")
+
+    if last_name == "":
+        errors.append("Missing last name")
+
+    if email == "":
+        errors.append("Missing email")
+    elif not email.endswith("@appstate.edu"):
+        errors.append("Email must end with @appstate.edu")
+    elif first_name != "" and last_name != "":
+        expected = first_name.lower() + "." + last_name.lower()
+        if not email.startswith(expected):
+            errors.append("Email does not match student name")
+
+    if major == "":
+        errors.append("Missing major")
+    elif major not in valid_majors:
+        errors.append("Invalid major: " + major)
+
+    gpa = 0.0
+    if gpa_text == "":
+        errors.append("Missing GPA")
+    else:
+        try:
+            gpa = float(gpa_text)
+            if gpa < 0.0 or gpa > 4.0:
+                errors.append("GPA must be between 0.0 and 4.0")
+        except ValueError:
+            errors.append("GPA must be numeric")
+
+    if classification == "":
+        errors.append("Missing classification")
+    elif classification not in valid_classifications:
+        errors.append("Invalid classification: " + classification)
+
+    student = Student(student_id, first_name, last_name, email,
+                      major, gpa, classification)
+    return student, errors
+
+
+def create_table():
+    conn = sqlite3.connect(DB_NAME)      # creates the database if it doesn't exist
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS students (
+            student_id INTEGER PRIMARY KEY,
+            first_name TEXT, last_name TEXT, email TEXT, major TEXT, gpa REAL,
+            classification TEXT) """)
+    conn.commit()
+    conn.close()
+    print("Database table created.")
+
+
+def clear_students():
+    """Removes old records so a new import starts fresh."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM students")
+    conn.commit()
+    conn.close()
+
+
+def add_student(student):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        """INSERT INTO students(
+            student_id, first_name, last_name, email, major, gpa, classification) 
+            VALUES(?, ?, ?, ?, ?, ?, ?) """, (int(student.student_id), student.first_name, student.last_name,
+              student.email, student.major, student.gpa, student.classification))
+    conn.commit()
+    conn.close()
+
+
+def get_student(student_id):
+    """Returns one record (a tuple), or None if not found."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM students WHERE student_id = ?", (student_id,))
+    results = cursor.fetchall()
+    conn.close()
+    if len(results) == 0:
+        return None
+    return results[0]
+
+
+def search_by_last_name(last_name):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM students WHERE last_name = ?", (last_name,))
+    results = cursor.fetchall()
+    conn.close()
+    return results
+
+
+def get_all_students():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM students")
+    results = cursor.fetchall()
+    conn.close()
+    return results
+
+
+def update_student(student):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""UPDATE students
+        SET first_name = ?, last_name = ?, email = ?,
+            major = ?, gpa = ?, classification = ?
+        WHERE student_id = ?""", (student.first_name, student.last_name, student.email,
+              student.major, student.gpa, student.classification,
+              int(student.student_id)))
+    conn.commit()
+    conn.close()
+
+
+def load_csv(filename):
+    """Reads the CSV file, validates every record, and stores the valid ones.
+    Returns the number of valid records and a list of rejected messages."""
+    file = open(filename, "r")
+    lines = file.readlines()
+    file.close()
+
+    lines = lines[1:]          # skip the header row
+
+    # Collect every Student ID first so we can find duplicates
+    all_ids = []
+    for line in lines:
+        fields = line.strip().split(",")
+        all_ids.append(fields[0].strip())
+
+    clear_students()
+    valid_count = 0
+    rejected = []
+    row_number = 1             # row 1 is the header
+
+    for line in lines:
+        row_number = row_number + 1
+
+        if line.strip() == "":           # skip blank lines
+            continue
+
+        fields = line.strip().split(",")
+        if len(fields) != 7:
+            rejected.append("Row " + str(row_number) + ": wrong number of fields")
+            continue
+
+        student, errors = clean_and_validate(fields[0], fields[1], fields[2],
+                                             fields[3], fields[4], fields[5],
+                                             fields[6])
+
+        # Two records with the same ID: we can't tell which is correct
+        if all_ids.count(student.student_id) > 1:
+            errors.append("Duplicate Student ID")
+
+        if len(errors) == 0:
+            add_student(student)
+            valid_count = valid_count + 1
+        else:
+            rejected.append("Row " + str(row_number) + " (ID " + student.student_id
+                            + "): " + "; ".join(errors))
+
+    return valid_count, rejected
+
+
+def save_rejected_log(rejected):
+    """Saves rejected records and the reasons to a text file."""
+    file = open(LOG_NAME, "w")
+    for message in rejected:
+        file.write(message + "\n")
+    file.close()
+
+
+def build_report():
+    """Creates the summary report text."""
+    students = get_all_students()
+    total = len(students)
+    if total == 0:
+        return "No students in the database.\nUse File > Import CSV first."
+
+    gpa_total = 0
+    honors = 0
+    probation = 0
+    major_counts = {}
+    major_gpa_totals = {}
+    class_counts = {}
+
+    for student in students:
+        major = student[4]
+        gpa = student[5]
+        classification = student[6]
+
+        gpa_total = gpa_total + gpa
+        if gpa >= 3.5:
+            honors = honors + 1
+        if gpa < 2.0:
+            probation = probation + 1
+
+        if major in major_counts:
+            major_counts[major] = major_counts[major] + 1
+            major_gpa_totals[major] = major_gpa_totals[major] + gpa
+        else:
+            major_counts[major] = 1
+            major_gpa_totals[major] = gpa
+
+        if classification in class_counts:
+            class_counts[classification] = class_counts[classification] + 1
+        else:
+            class_counts[classification] = 1
+
+    report = "STUDENT SUMMARY REPORT\n\n"
+    report = report + "Total students: " + str(total) + "\n"
+    report = report + "Average GPA: " + str(round(gpa_total / total, 2)) + "\n"
+    report = report + "Honors (GPA 3.5 or higher): " + str(honors) + "\n"
+    report = report + "Probation (GPA below 2.0): " + str(probation) + "\n"
+
+    report = report + "\nStudents by Major (count, average GPA):\n"
+    for major in major_counts:
+        average = round(major_gpa_totals[major] / major_counts[major], 2)
+        report = report + "  " + major + ": " + str(major_counts[major]) \
+            + " students, " + str(average) + " GPA\n"
+
+    report = report + "\nStudents by Classification:\n"
+    for classification in class_counts:
+        report = report + "  " + classification + ": " \
+            + str(class_counts[classification]) + "\n"
+
+    return report
+
+
+def import_file():
+    filename = filedialog.askopenfilename()      # returns the file path
+    if filename == "":                           # user clicked Cancel
+        return
+
+    answer = messagebox.askyesno("Import Data",
+                                 "This will replace all current records. Continue?")
+    if not answer:
+        return
+
+    valid_count, rejected = load_csv(filename)
+    save_rejected_log(rejected)
+
+    status_label.config(text=f"Imported {valid_count} records. "
+                             f"Rejected {len(rejected)} records.")
+    messagebox.showinfo("Import Complete", f"Valid records saved: {valid_count}\n" f"Records rejected: {len(rejected)}\n\n" "Reasons saved to rejected_records.txt")
+
+
+def search_student():
+    search_text = search_entry.get().strip()
+
+    if search_text == "":
+        messagebox.showerror("Search Error", "Enter a Student ID or last name.")
+    elif search_text.isdigit():
+        # Search by Student ID
+        record = get_student(int(search_text))
+        if record is None:
+            messagebox.showerror("Search Error", "Unable to locate student record.")
+        else:
+            fill_form(record)
+            result_label.config(text="Student found. Edit the fields and click Update.")
+    else:
+        # Search by last name
+        records = search_by_last_name(search_text.title())
+        if len(records) == 0:
+            messagebox.showerror("Search Error", "No students with that last name.")
+        else:
+            text = "Matches (search by ID to edit):\n"
+            for record in records:
+                text = text + f"{record[0]} - {record[1]} {record[2]} - {record[4]}\n"
+            result_label.config(text=text)
+
+
+def fill_form(record):
+    """Puts one student's data into the Entry boxes."""
+    clear_form()
+    id_entry.insert(0, record[0])
+    first_entry.insert(0, record[1])
+    last_entry.insert(0, record[2])
+    email_entry.insert(0, record[3])
+    major_entry.insert(0, record[4])
+    gpa_entry.insert(0, record[5])
+    class_entry.insert(0, record[6])
+
+
+def clear_form():
+    """Empties all of the Entry boxes."""
+    id_entry.delete(0, tk.END)
+    first_entry.delete(0, tk.END)
+    last_entry.delete(0, tk.END)
+    email_entry.delete(0, tk.END)
+    major_entry.delete(0, tk.END)
+    gpa_entry.delete(0, tk.END)
+    class_entry.delete(0, tk.END)
+
+
+def update_record():
+    # Same validation as the import, so bad data can't get in here either
+    student, errors = clean_and_validate(id_entry.get(), first_entry.get(),
+                                         last_entry.get(), email_entry.get(),
+                                         major_entry.get(), gpa_entry.get(),
+                                         class_entry.get())
+    if len(errors) > 0:
+        messagebox.showerror("Input Error", "\n".join(errors))
+        return
+
+    if get_student(int(student.student_id)) is None:
+        messagebox.showerror("Update Error", "Unable to locate student record.")
+        return
+
+    answer = messagebox.askyesno("Update Student", "Save changes to this student?")
+    if answer:
+        update_student(student)
+        status_label.config(text="Student Record Updated Successfully")
+        messagebox.showinfo("Success", "Student record updated successfully.")
+    else:
+        status_label.config(text="Update Cancelled")
+
+
+def show_report():
+    report_window = tk.Toplevel(root)            # creates secondary window
+    report_window.title("Summary Report")
+    tk.Label(report_window, text=build_report(), font=("Courier", 11),
+             justify="left").pack(padx=20, pady=20)
+
+
+def about():
+    messagebox.showinfo("About", "Student Information System\n" "Registrar's Office Data Migration")
+
+
+root = tk.Tk()
+root.title("Student Information System")
+
+create_table()
+
+#menu bars
+menu_bar = tk.Menu(root)
+
+file_menu = tk.Menu(menu_bar, tearoff=0)
+file_menu.add_command(label="Import CSV", command=import_file)
+file_menu.add_separator()
+file_menu.add_command(label="Exit", command=root.quit)
+menu_bar.add_cascade(label="File", menu=file_menu)
+
+report_menu = tk.Menu(menu_bar, tearoff=0)
+report_menu.add_command(label="Summary Report", command=show_report)
+menu_bar.add_cascade(label="Reports", menu=report_menu)
+
+help_menu = tk.Menu(menu_bar, tearoff=0)
+help_menu.add_command(label="About", command=about)
+menu_bar.add_cascade(label="Help", menu=help_menu)
+
+root.config(menu=menu_bar)
+
+# ----- Title -----
+tk.Label(root, text="Student Information System",
+         font=("Arial", 18, "bold")).grid(row=0, column=0, columnspan=3, pady=10)
+
+# ----- Search -----
+tk.Label(root, text="Student ID or Last Name:").grid(row=1, column=0, padx=5, pady=5)
+search_entry = tk.Entry(root, width=30)
+search_entry.grid(row=1, column=1, padx=5, pady=5)
+tk.Button(root, text="Search", width=10,
+          command=search_student).grid(row=1, column=2, padx=5, pady=5)
+
+result_label = tk.Label(root, text="", justify="left")
+result_label.grid(row=2, column=0, columnspan=3, pady=5)
+
+# ----- Student form (grid layout: label in column 0, entry in column 1) -----
+tk.Label(root, text="Student ID:").grid(row=3, column=0, padx=5, pady=5)
+id_entry = tk.Entry(root, width=30)
+id_entry.grid(row=3, column=1, padx=5, pady=5)
+
+tk.Label(root, text="First Name:").grid(row=4, column=0, padx=5, pady=5)
+first_entry = tk.Entry(root, width=30)
+first_entry.grid(row=4, column=1, padx=5, pady=5)
+
+tk.Label(root, text="Last Name:").grid(row=5, column=0, padx=5, pady=5)
+last_entry = tk.Entry(root, width=30)
+last_entry.grid(row=5, column=1, padx=5, pady=5)
+
+tk.Label(root, text="Email:").grid(row=6, column=0, padx=5, pady=5)
+email_entry = tk.Entry(root, width=30)
+email_entry.grid(row=6, column=1, padx=5, pady=5)
+
+tk.Label(root, text="Major:").grid(row=7, column=0, padx=5, pady=5)
+major_entry = tk.Entry(root, width=30)
+major_entry.grid(row=7, column=1, padx=5, pady=5)
+
+tk.Label(root, text="GPA:").grid(row=8, column=0, padx=5, pady=5)
+gpa_entry = tk.Entry(root, width=30)
+gpa_entry.grid(row=8, column=1, padx=5, pady=5)
+
+tk.Label(root, text="Classification:").grid(row=9, column=0, padx=5, pady=5)
+class_entry = tk.Entry(root, width=30)
+class_entry.grid(row=9, column=1, padx=5, pady=5)
+
+tk.Button(root, text="Update", width=15,
+          command=update_record).grid(row=10, column=0, pady=15)
+tk.Button(root, text="Clear", width=15,
+          command=clear_form).grid(row=10, column=1, pady=15)
+
+status_label = tk.Label(root, text="Use File > Import CSV to load student data.")
+status_label.grid(row=11, column=0, columnspan=3, pady=10)
+
+root.mainloop()
